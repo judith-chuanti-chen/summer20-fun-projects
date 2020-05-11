@@ -1,6 +1,6 @@
 var list = document.querySelectorAll(".literal")
 var res = new Set();
-list.forEach((ele)=>{
-    res.add(ele.textContent);
-})
-console.log(res);
+for (var i = 0; i < list.length; i ++){
+    localStorage.setItem(i, list[i].textContent)
+}
+window.document.location= './sandbox.html'
