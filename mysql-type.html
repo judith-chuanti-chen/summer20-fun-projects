@@ -1,209 +1,223 @@
 <!DOCTYPE html><html><head><title>mysql</title>
-<style>.HUH{color:red} .PR{color:blue;} .TYPE{margin: 2pt}</style>
-<script>
-function inject(loc,val){document.getElementById(loc).innerHTML = val;}
-function join(list, obj){obj.ndx = list.length; list.push(obj);}
+    <style>.HUH{color:red} .PR{color:blue;} .TYPE{margin: 2pt}</style>
+    <script>
+        function inject(loc,val){document.getElementById(loc).innerHTML = val;}
+        function join(list, obj){obj.ndx = list.length; list.push(obj);}
 
 
-function repaint(){inject('HTM', DB.htm()); inject('MSQ', DB.msq());}
-window.onload = function(){repaint();}
+        function repaint(){inject('HTM', DB.htm()); inject('MSQ', DB.msq());}
+        window.onload = function(){repaint();}
 
-//------------------Editable Strings---------------------
+        //------------------Editable Strings---------------------
 
-var HUH = '<span class="HUH">?</span>';
-var ES = []; // all the editable strings
-var editNdx = -1; // which ES is currently a text box
+        var HUH = '<span class="HUH">?</span>';
+        var ES = []; // all the editable strings
+        var editNdx = -1; // which ES is currently a text box
 
-//kup = onkeyup, event occurs when the user releases a key; Updates
-function kup(ndx){var t = document.getElementById('ES').value;
-  if(ES[ndx].str != t){ES[ndx].str = t;}else{editNdx = -1; repaint();} 
-}
-//Updates the index of which ES we are editing now; editNdx is like a global var that controls which ES to edit
-function edit(ndx){editNdx = ndx; repaint();}
+        //kup = onkeyup, event occurs when the user releases a key; Updates
+        function kup(ndx){var t = document.getElementById('ES').value;
+            if(ES[ndx].str != t){ES[ndx].str = t;}else{editNdx = -1; repaint();}
+        }
+        //Updates the index of which ES we are editing now; editNdx is like a global var that controls which ES to edit
+        function edit(ndx){editNdx = ndx; repaint();}
 
-//Constructs an ES object and add this ES to ES list
-function Es(prompt){this.str = ''; join(ES, this); this.pr = prompt;}
+        //Constructs an ES object and add this ES to ES list
+        function Es(prompt){this.str = ''; join(ES, this); this.pr = prompt;}
 
-//
-Es.prototype.name = function(){return (this.str=='')?HUH:this.str;}
+        //
+        Es.prototype.name = function(){return (this.str=='')?HUH:this.str;}
 
-//Click on an editable string and updates Es with new value
-Es.prototype.hName = function(){
-  var res= '<span onclick="edit('+this.ndx+');">'+this.name()+'</span>';
-  //alert(res);
-  return res;
-}
-//prompt
-Es.prototype.box = function(){
-  return this.pr + ': <input id="ES" value="'+this.str +
-      '" onkeyup="kup('+this.ndx+');"/>'
-}
-Es.prototype.htm = function(){return (editNdx==this.ndx)?this.box():this.hName();}
+        //Click on an editable string and updates Es with new value
+        Es.prototype.hName = function(){
+            var res= '<span onclick="edit('+this.ndx+');">'+this.name()+'</span>';
+            //alert(res);
+            return res;
+        }
+        //prompt
+        Es.prototype.box = function(){
+            return this.pr + ': <input id="ES" value="'+this.str +
+                '" onkeyup="kup('+this.ndx+');"/>'
+        }
+        Es.prototype.htm = function(){return (editNdx==this.ndx)?this.box():this.hName();}
 
-//------------------------Database------------------------------
+        //------------------------Database------------------------------
 
-var DB = new Db('');
+        var DB = new Db('');
 
-function Db(){this.es = new Es('enter name'); this.tables = [];}
-Db.prototype.hName = function(){
-  return '<h2><span class="PR">database: </span>'+this.es.htm()+'</h2>';}
-Db.prototype.htm = function(){
-  return this.hName() + this.hTables() + Db.addTabBtn;
-}
-Db.addTabBtn = '<br/><span class="HUH" onclick="addTab();" >Add Table</span>';
-Db.prototype.hTables = function(){
-  var res = '', t=this.tables; 
-  for(var i=0;i<t.length;i++){res+=t[i].htm();} 
-  return res;
-}
-Db.prototype.hAddNewTab = function(){
-  return;
-}
+        function Db(){this.es = new Es('enter name'); this.tables = [];}
+        Db.prototype.hName = function(){
+            return '<h2><span class="PR">database: </span>'+this.es.htm()+'</h2>';}
+        Db.prototype.htm = function(){
+            return this.hName() + this.hTables() + Db.addTabBtn;
+        }
+        Db.addTabBtn = '<br/><span class="HUH" onclick="addTab();" >Add Table</span>';
+        Db.prototype.hTables = function(){
+            var res = '', t=this.tables;
+            for(var i=0;i<t.length;i++){res+=t[i].htm();}
+            return res;
+        }
+        Db.prototype.hAddNewTab = function(){
+            return;
+        }
 
-Db.prototype.msq = function(){
-  return this.msqUse() + this.msqCTs(); + this.msqTVs();
-}
-Db.prototype.msqUse = function(){
-  return 'DROP DATABASE ' + DB.es.name() + ' IF EXISTS;<br/>' +
-         'CREATE DATABASE ' + DB.es.name() + ';<br/>'  +
-         'USE ' + DB.es.name() + ';<br/>'                
-}
-Db.prototype.msqCTs = function(){
-  var res = '';
-  for(var i = 0; i<this.tables.length; i++){
-    res += this.tables[i].mCT();
-  } 
-  return res;  
-}
-Db.prototype.msqTVs = function(){return '';}
+        Db.prototype.msq = function(){
+            return this.msqUse() + this.msqCTs(); + this.msqTVs();
+        }
+        Db.prototype.msqUse = function(){
+            return 'DROP DATABASE ' + DB.es.name() + ' IF EXISTS;<br/>' +
+                'CREATE DATABASE ' + DB.es.name() + ';<br/>'  +
+                'USE ' + DB.es.name() + ';<br/>'
+        }
+        Db.prototype.msqCTs = function(){
+            var res = '';
+            for(var i = 0; i<this.tables.length; i++){
+                res += this.tables[i].mCT();
+            }
+            return res;
+        }
+        Db.prototype.msqTVs = function(){return '';}
 
-//----------------------Tables -------------------------
-function addTab(){var t = new Table();repaint();}
-function Table(){
-  this.es = new Es('enter name'); join(DB.tables, this); this.fields=[];
-  this.showT = false;
-  this.data = [];
-  new Field(this.ndx); 
-}
-Table.prototype.htm = function(){
-  return this.hName() + '<table border="1">'+this.th()+this.td()+'</table>' + (this.showT ? Type.htm() : '');
-}
-Table.prototype.hName = function(){
-  return '<br/><span class="PR">Table: </span>' + this.es.htm() + ' ' +this.addFBtn()+ ' ' + this.addDBtn();
-}
-Table.prototype.addFBtn = function(){
-  return '<span class="HUH" onclick="addField(' + this.ndx +
-    ');" title="add new Field">+F</span>';
-}
-Table.prototype.addDBtn = function(){
-  return '<span class="HUH" onclick="addData(' + this.ndx +
-    ');" title="add new Data Row">+D</span>';
-}
-
-
-Table.prototype.td = function(){
-  var res = '', sep, a = '<tr><td>x</td><td>x</td></tr>'.split('x');
-  for(var ir = 0; ir<this.data.length; ir++){
-    var r = this.data[ir];
-    res += a[0]; sep = '';
-    for(var i=0; i<r.length; i++){res += sep+r[i].val(); sep = a[1];}
-    res += a[2];
-  }
-  return res;
-}
-Table.prototype.th = function(){
-  var a = '<tr><th>x</th><th>x</th></tr>'.split('x'), sep = '', res = a[0];
-  for(var i = 0; i<this.fields.length; i++){
-    res += sep+this.fields[i].hName(); sep = a[1];
-  }
-  return res+a[2];
-}
-
-var br2 = '<br/>&nbsp;&nbsp;';
-
-Table.prototype.mCT = function(){
-  var res = '<br/>CREATE TABLE ' + this.es.name() + '(';
-  var sep = '';
-  for(var i=0; i<this.fields.length; i++){
-    res += sep + br2 + this.fields[i].mCT(); sep = ','
-  } 
-  return res + '<br/>);<br/>';
-}
-function addData(ndx){
-  var t = DB.tables[ndx], res = [];
-  for(var i = 0; i<t.fields.length; i++){res.push(new Data(t.fields[i]));}
-  t.data.push(res);
-  repaint();
-}
-Table.prototype.showType = function(){this.showT = true; repaint(); console.log(this.htm()); }
-
-//---------------------- Fields ------------------------
-function addField(ndx){new Field(ndx); repaint();}
-function Field(tabNdx){
-  this.table = DB.tables[tabNdx];
-  this.es = new Es(''); 
-  join(this.table.fields, this);
-  this.type = 'INT';
-  // a type object
-  // this.t = Type();
-  for(var i=0; i<this.table.data.length; i++){ // extend existing data
-    this.table.data[i].push(new Data(this));
-  }
-}
-Field.prototype.hName = function(){return this.es.htm() + this.addTBtn() ;}
-
-var PK = ' NOT NULL AUTO_INCREMENT, PRIMARY KEY (';
-Field.prototype.mCT = function(){
-  var fn = this.es.name();
-  var ty = 'INT' + 
-    ((fn.length >=2 && fn.charAt(0)=='p' && fn.charAt(1)=='k')? PK + fn + ')' : '');
-  return this.es.name() + ' ' + ty;
-}
-
-//Add Type Button
-Field.prototype.addTBtn = function() {
-    return '<span class="HUH" onclick="showType('+ this.table  +
-        ')" title="select a type for this field">' + " type?" + '</span>';
-}
-
-var showType = function(table){ table.showType(); }
-
-//---------------------- DataType -----------------------
-function addType(){new Type();}
-var types = {
-    "Strings": ["CHAR", "VARCHAR", "BINARY","VARBINARY","BLOB","TINYBLOB","MEDIUMBLOB","LONGBLOB","TEXT","TINYTEXT",
-        "MEDIUMTEXT","LONGTEXT","ENUM","SET"],
-    "Numerics": ["BIT","INT","INTEGER", "TINYINT","SMALLINT","MEDIUMINT","BIGINT","FLOAT", "DOUBLE", "DEC", "DECIMAL",
-        "BOOL","BOOLEAN"],
-    "Dates": ["DATE","DATETIME","TIMESTAMP","TIME","YEAR"]
-}
-function Type(){this.types = types; this.major =''; this.sub = '';}
+        //----------------------Tables -------------------------
+        function addTab(){var t = new Table();repaint();}
+        function Table(){
+            this.es = new Es('enter name'); join(DB.tables, this); this.fields=[];
+            this.showT = false;
+            this.data = [];
+            new Field(this.ndx);
+        }
+        Table.prototype.htm = function(){
+            return this.hName() + '<table border="1">'+this.th()+this.td()+'</table>' + (this.showT ? new Type().htm() : '');
+        }
+        Table.prototype.hName = function(){
+            return '<br/><span class="PR">Table: </span>' + this.es.htm() + ' ' +this.addFBtn()+ ' ' + this.addDBtn();
+        }
+        Table.prototype.addFBtn = function(){
+            return '<span class="HUH" onclick="addField(' + this.ndx +
+                ');" title="add new Field">+F</span>';
+        }
+        Table.prototype.addDBtn = function(){
+            return '<span class="HUH" onclick="addData(' + this.ndx +
+                ');" title="add new Data Row">+D</span>';
+        }
 
 
-Type.prototype.htm = function(){return this.hMajorTypes() + this.hSubTypes();}
-// html for showing major types
-Type.prototype.hMajorTypes = function(){
-    var res = '';
-    // mt - major type: strings, numerics, dates
-    for(var mt in this.types){res += "<button class='TYPE' onclick='selectMajor("+this.types[mt]+")'>" + mt + "</button>";}
-    return "<span>" + res + "</span>";
-}
+        Table.prototype.td = function(){
+            var res = '', sep, a = '<tr><td>x</td><td>x</td></tr>'.split('x');
+            for(var ir = 0; ir<this.data.length; ir++){
+                var r = this.data[ir];
+                res += a[0]; sep = '';
+                for(var i=0; i<r.length; i++){res += sep+r[i].val(); sep = a[1];}
+                res += a[2];
+            }
+            return res;
+        }
+        Table.prototype.th = function(){
+            var a = '<tr><th>x</th><th>x</th></tr>'.split('x'), sep = '', res = a[0];
+            for(var i = 0; i<this.fields.length; i++){
+                res += sep+this.fields[i].hName(); sep = a[1];
+            }
+            return res+a[2];
+        }
 
-Type.prototype.hSubTypes = function(){
-    if(this.major === '') return;
-    var res = '';
-    for(var st in this.types[this.major]){res += "<button class='TYPE' onclick='selectSub("+ st +")'>"+ st +"</button>";}
-    return "<span>" + res + "</span>";
-}
-var selectMajor = function(mt){ this.major = mt; }
-var selectSub = function(st){ this.sub = st;}
+        var br2 = '<br/>&nbsp;&nbsp;';
+
+        Table.prototype.mCT = function(){
+            var res = '<br/>CREATE TABLE ' + this.es.name() + '(';
+            var sep = '';
+            for(var i=0; i<this.fields.length; i++){
+                res += sep + br2 + this.fields[i].mCT(); sep = ','
+            }
+            return res + '<br/>);<br/>';
+        }
+        function addData(ndx){
+            var t = DB.tables[ndx], res = [];
+            for(var i = 0; i<t.fields.length; i++){res.push(new Data(t.fields[i]));}
+            t.data.push(res);
+            repaint();
+        }
+        // Table.prototype.showType = function(){
+        //     this.showT = true; repaint();
+        // }
+
+        //---------------------- Fields ------------------------
+        function addField(ndx){new Field(ndx); repaint();}
+        function Field(tabNdx){
+            this.table = DB.tables[tabNdx];
+            this.tableID = tabNdx;
+            this.es = new Es('');
+            join(this.table.fields, this);
+            this.type = 'INT';
+            // a type object
+            // this.t = new Type();
+            for(var i=0; i<this.table.data.length; i++){ // extend existing data
+                this.table.data[i].push(new Data(this));
+            }
+        }
+        Field.prototype.hName = function(){return this.es.htm() + this.addTBtn() ;}
+
+        var PK = ' NOT NULL AUTO_INCREMENT, PRIMARY KEY (';
+        Field.prototype.mCT = function(){
+            var fn = this.es.name();
+            var ty = 'INT' +
+                ((fn.length >=2 && fn.charAt(0)=='p' && fn.charAt(1)=='k')? PK + fn + ')' : '');
+            return this.es.name() + ' ' + ty;
+        }
+
+        //Add Type Button
+        Field.prototype.addTBtn = function() {
+            // this.type = "type?";
+            return '<span class="HUH" id="type" onclick="showType('+ this.tableID +')" title="select a type for this field">' + " "+ subType + '</span>';
+        }
+        var showType = function(tableID){
+            DB.tables[tableID].showT = true;
+            repaint();
+            // DB.tables[tableID].showT = false;
+        }
+        Field.prototype.updateType = function() { this.type = subType; }
+
+        Field.prototype.addType = function(){}
+        //---------------------- DataType -----------------------
+        var mainType = '';
+        var subType = "type?";
+        var types = {
+            "Strings": ["CHAR", "VARCHAR", "BINARY","VARBINARY","BLOB","TINYBLOB","MEDIUMBLOB","LONGBLOB","TEXT","TINYTEXT",
+                "MEDIUMTEXT","LONGTEXT","ENUM","SET"],
+            "Numerics": ["BIT","INT","INTEGER", "TINYINT","SMALLINT","MEDIUMINT","BIGINT","FLOAT", "DOUBLE", "DEC", "DECIMAL",
+                "BOOL","BOOLEAN"],
+            "Dates": ["DATE","DATETIME","TIMESTAMP","TIME","YEAR"]
+        }
+
+        function Type(field){this.selected = '';}
 
 
-//---------------------- Data ---------------------------
-function Data(field){this.field = field; this.es = new Es('val');}
-Data.prototype.val = function(){return this.es.htm();}
+        Type.prototype.htm = function(){return this.hMainTypes() + this.hSubTypes();}
+        // html for showing major types
+        Type.prototype.hMainTypes = function(){
+            var res = '';
+            // mt - major type: strings, numerics, dates
+            for(var mt in types){
+                res += "<button class='TYPE' onclick='selectMain("+ '"' + mt + '"' + ")'>" + mt + "</button>";}
+            return "<div><span>" + res + "</span></div>";
+        }
 
-</script>
+        Type.prototype.hSubTypes = function(){
+            if(mainType === '') return '';
+            console.log("hSubTypes: " + mainType);
+            var res = '';
+            for(var st of types[mainType]){res += "<button class='TYPE' onclick='selectSub("+ '"' + st + '"'+")'>"+ st +"</button>";}
+            //reset mainType to ''
+            mainType = '';
+            return "<div><span>" + res + "</span></div>";
+        }
+        var selectMain = function(major){ mainType = major; console.log("selectMajor: "+ major); repaint(); }
+        var selectSub = function(st){ subType = st; console.log(subType); repaint();}
+
+
+        //---------------------- Data ---------------------------
+        function Data(field){this.field = field; this.es = new Es('val');}
+        Data.prototype.val = function(){return this.es.htm();}
+
+    </script>
 </head><body>
 <h1>MySQL</h1>
 
