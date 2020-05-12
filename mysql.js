@@ -32,6 +32,7 @@ Es.prototype.name = function(){
   var iptUpper = ipt.toUpperCase();
   if (words.has(iptUpper)) {
     alert('Your input is a reserved word. Choose another one!');
+    this.str = "";
     return HUH;
   }
   return this.str;
