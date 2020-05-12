@@ -7,6 +7,7 @@
 
         function repaint(){inject('HTM', DB.htm()); inject('MSQ', DB.msq());}
         window.onload = function(){repaint();}
+        var currType = 'INT';
 
         //------------------Editable Strings---------------------
 
@@ -146,7 +147,7 @@
             this.tableID = tabNdx;
             this.es = new Es('');
             join(this.table.fields, this);
-            this.type = 'INT';
+            this.type = undefined;
             // a type object
             // this.t = new Type();
             for(var i=0; i<this.table.data.length; i++){ // extend existing data
@@ -158,7 +159,8 @@
         var PK = ' NOT NULL AUTO_INCREMENT, PRIMARY KEY (';
         Field.prototype.mCT = function(){
             var fn = this.es.name();
-            var ty = 'INT' +
+            console.log(this.type);
+            var ty = (this.type)?this.type:currType +
                 ((fn.length >=2 && fn.charAt(0)=='p' && fn.charAt(1)=='k')? PK + fn + ')' : '');
             return this.es.name() + ' ' + ty;
         }
@@ -210,7 +212,7 @@
             return "<div><span>" + res + "</span></div>";
         }
         var selectMain = function(major){ mainType = major; console.log("selectMajor: "+ major); repaint(); }
-        var selectSub = function(st){ subType = st; console.log(subType); repaint();}
+        var selectSub = function(st){ currType = st; subType = st; console.log(currType); repaint();}
 
 
         //---------------------- Data ---------------------------
